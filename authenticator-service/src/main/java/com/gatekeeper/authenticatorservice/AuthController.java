@@ -30,4 +30,17 @@ public class AuthController {
         String password = req.get("password");
         return ResponseEntity.ok(authService.login(username, password));
     }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@RequestBody Map<String, String> req) {
+        return ResponseEntity.ok(
+                Map.of("token", authService.refreshToken(req.get("token")))
+        );
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout() {
+        // In JWT, logout is usually handled client-side by deleting token
+        return ResponseEntity.ok(Map.of("message", "Logged out"));
+    }
 }
