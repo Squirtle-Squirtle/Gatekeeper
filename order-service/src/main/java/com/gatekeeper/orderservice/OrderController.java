@@ -1,33 +1,33 @@
 package com.gatekeeper.orderservice;
 
 import com.gatekeeper.models.Order;
-import com.gatekeeper.models.OrderDetails;
-import com.gatekeeper.models.OrderStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/v1/order")
 public class OrderController {
 
-    private final AtomicLong seq = new AtomicLong(100);
+    private final OrderService orderService;
+
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
+    }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, path = "/create")
-    public ResponseEntity<OrderDetails> createOrder(@RequestBody Order order, @RequestHeader(value = "X-user-Id", required = false) String userId) {
-        long id = seq.incrementAndGet();
-        OrderDetails orderDetails = OrderDetails.builder().userId(userId).order(order).status(OrderStatus.ORDER_PLACED).build();
-        return ResponseEntity.ok(orderDetails);
+    public ResponseEntity<Order> createOrder(@RequestBody Order order) {
+        return ResponseEntity.ok(orderService.save(order));
     }
 
     @GetMapping("/{orderId}")
-    public ResponseEntity<OrderDetails> getOrder(@PathVariable long orderId) {
-        Order order = Order.builder().build();
-        OrderDetails orderDetails = OrderDetails.builder().userId("123").order(order).status(OrderStatus.ORDER_PLACED).build();
-        return ResponseEntity.ok(orderDetails);
+    public ResponseEntity<Optional<Order>> getOrder(@PathVariable long orderId) {
+        return ResponseEntity.ok(orderService.getOrderDetails(orderId));
     }
 }
